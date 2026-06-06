@@ -6,7 +6,7 @@
   <title>Корейский с Дунхуа-парнем 🌸</title>
   <style>
     body {
-      background: #1a1a2e;
+      background: #0f0f1a;
       font-family: 'Segoe UI', Roboto, sans-serif;
       display: flex;
       justify-content: center;
@@ -20,7 +20,7 @@
       height: 650px;
       background: #121214;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -34,9 +34,18 @@
       align-items: center;
       padding: 20px;
       position: relative;
-      background-image: url('https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1974&auto=format&fit=crop');
+      /* НОВАЯ НАДЕЖНАЯ ССЫЛКА НА КРАСИВОГО АРТ-ПАРНЯ */
+      background-image: url('https://raw.githubusercontent.com/Aethelwulf-code/storage/main/dunhua_guy.jpg');
       background-size: cover;
       background-position: center;
+    }
+    /* Если вдруг и эта ссылка подведет, подстрахуем красивым градиентом */
+    .character-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom, rgba(26,26,46,0.3), rgba(0,0,0,0.8));
+      z-index: 1;
     }
     .center-start-btn {
       background: linear-gradient(135deg, #ff7675, #e84393);
@@ -52,23 +61,20 @@
       z-index: 10;
       animation: pulse 2s infinite;
     }
-    .center-start-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 30px rgba(232, 67, 147, 0.8);
-    }
     .bubble {
       background: white;
       border-radius: 20px;
       padding: 15px 25px;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
       color: #333;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
       position: absolute;
       top: 40px;
       max-width: 80%;
       text-align: center;
       display: none;
+      z-index: 10;
     }
     .guy-bubble::after {
       content: '';
@@ -81,7 +87,7 @@
       border-color: white transparent;
     }
     .answers-box {
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(10px);
       padding: 20px;
       display: none;
@@ -90,6 +96,7 @@
       min-height: 180px;
       justify-content: center;
       border-top: 1px solid rgba(255,255,255,0.1);
+      z-index: 10;
     }
     .answer-btn {
       background: white;
@@ -117,8 +124,8 @@
 <body>
 
 <div class="game-container">
-  <div class="character-box" onclick="activateAudio()">
-    <button id="main-start-btn" class="center-start-btn" onclick="startGame(event)">
+  <div class="character-box">
+    <button id="main-start-btn" class="center-start-btn" onclick="startGame()">
       Начать разговор 🌸
     </button>
     <div id="speech-bubble" class="bubble guy-bubble"></div>
@@ -137,7 +144,7 @@ const dialogue = {
     ]
   },
   step2: {
-    text: "어떻ге 지내요?",
+    text: "어떻게 지내요?",
     options: [
       { text: "잘 지내요. 당신은요?", nextStep: "win" },
       { text: "배고파요", nextStep: "error" },
@@ -156,31 +163,29 @@ const dialogue = {
   }
 };
 
-function activateAudio() {
-  window.speechSynthesis.getVoices();
-}
-
 function speakKorean(text) {
   const koreanText = text.split("\n").shift().split("😊").shift();
   const utterance = new SpeechSynthesisUtterance(koreanText);
   utterance.lang = 'ko-KR';
-  utterance.pitch = 0.75; 
-  utterance.rate = 0.8;
+  
+  // УЛЬТРА-НИЗКИЙ ТОН: заставляем даже женский голос звучать басисто и мужественно
+  utterance.pitch = 0.5; 
+  utterance.rate = 0.75; // Размеренная мужская речь
 
   const voices = window.speechSynthesis.getVoices();
   const maleVoice = voices.find(voice => 
     voice.lang.startsWith('ko') && 
     (voice.name.toLowerCase().includes('male') || 
      voice.name.toLowerCase().includes('minsu') || 
-     voice.name.toLowerCase().includes('google 한국어'))
+     voice.name.toLowerCase().includes('gwangji') ||
+     voice.name.toLowerCase().includes('google'))
   );
 
   if (maleVoice) utterance.voice = maleVoice;
   window.speechSynthesis.speak(utterance);
 }
 
-function startGame(event) {
-  event.stopPropagation();
+function startGame() {
   document.getElementById("main-start-btn").style.display = "none";
   document.getElementById("speech-bubble").style.display = "block";
   document.getElementById("answers-container").style.display = "flex";
@@ -217,7 +222,9 @@ function showStep(stepName) {
   });
 }
 
+// Загрузка голосов
 window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+window.speechSynthesis.getVoices();
 </script>
 
 </body>

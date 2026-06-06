@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корейский с Дунхуа-парнем 🌸</title>
+  <style>
+    body {
+      background: #1a1a2e;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .game-container {
+      width: 100%;
+      max-width: 500px;
+      height: 650px;
+      background: #121214;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .character-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      background-image: url('https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1974&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+    .center-start-btn {
+      background: linear-gradient(135deg, #ff7675, #e84393);
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 5px 25px rgba(232, 67, 147, 0.5);
+      transition: all 0.3s ease;
+      z-index: 10;
+      animation: pulse 2s infinite;
+    }
+    .center-start-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 30px rgba(232, 67, 147, 0.8);
+    }
+    .bubble {
+      background: white;
+      border-radius: 20px;
+      padding: 15px 25px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: absolute;
+      top: 40px;
+      max-width: 80%;
+      text-align: center;
+      display: none;
+    }
+    .guy-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: white transparent;
+    }
+    .answers-box {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 180px;
+      justify-content: center;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .answer-btn {
+      background: white;
+      border: none;
+      border-radius: 15px;
+      padding: 14px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: bold;
+      color: #2d3436;
+      text-align: center;
+    }
+    .answer-btn:hover {
+      background: #ffeaa7;
+      transform: translateY(-2px);
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <div class="character-box" onclick="activateAudio()">
+    <button id="main-start-btn" class="center-start-btn" onclick="startGame(event)">
+      Начать разговор 🌸
+    </button>
+    <div id="speech-bubble" class="bubble guy-bubble"></div>
+  </div>
+  <div id="answers-container" class="answers-box"></div>
+</div>
+
+<script>
+const dialogue = {
+  step1: {
+    text: "안녕",
+    options: [
+      { text: "안녕", nextStep: "step2" },
+      { text: "잘 지내요?", nextStep: "error" },
+      { text: "미안해요", nextStep: "error" }
+    ]
+  },
+  step2: {
+    text: "어떻ге 지내요?",
+    options: [
+      { text: "잘 지내요. 당신은요?", nextStep: "win" },
+      { text: "배고파요", nextStep: "error" },
+      { text: "가요", nextStep: "error" }
+    ]
+  },
+  win: {
+    text: "나도 잘 지내요! 😊\nВы отлично справились!",
+    options: []
+  },
+  error: {
+    text: "앗... Ошибка! 🌸\nДавай попробуем ещё раз?",
+    options: [
+      { text: "Начать заново 🔄", nextStep: "step1" }
+    ]
+  }
+};
+
+function activateAudio() {
+  window.speechSynthesis.getVoices();
+}
+
+function speakKorean(text) {
+  const koreanText = text.split("\n").shift().split("😊").shift();
+  const utterance = new SpeechSynthesisUtterance(koreanText);
+  utterance.lang = 'ko-KR';
+  utterance.pitch = 0.75; 
+  utterance.rate = 0.8;
+
+  const voices = window.speechSynthesis.getVoices();
+  const maleVoice = voices.find(voice => 
+    voice.lang.startsWith('ko') && 
+    (voice.name.toLowerCase().includes('male') || 
+     voice.name.toLowerCase().includes('minsu') || 
+     voice.name.toLowerCase().includes('google 한국어'))
+  );
+
+  if (maleVoice) utterance.voice = maleVoice;
+  window.speechSynthesis.speak(utterance);
+}
+
+function startGame(event) {
+  event.stopPropagation();
+  document.getElementById("main-start-btn").style.display = "none";
+  document.getElementById("speech-bubble").style.display = "block";
+  document.getElementById("answers-container").style.display = "flex";
+  showStep("step1");
+}
+
+function showStep(stepName) {
+  const currentData = dialogue[stepName];
+  document.getElementById("speech-bubble").innerText = currentData.text;
+  
+  if (stepName !== "error") {
+    speakKorean(currentData.text);
+  }
+  
+  const container = document.getElementById("answers-container");
+  container.innerHTML = "";
+  
+  if (currentData.options.length === 0) {
+    const textNode = document.createElement("div");
+    textNode.style.color = "white";
+    textNode.style.textAlign = "center";
+    textNode.style.fontSize = "18px";
+    textNode.innerText = "🎉 Потрясающе! Диалог завершён.";
+    container.appendChild(textNode);
+    return;
+  }
+  
+  currentData.options.forEach(option => {
+    const button = document.createElement("button");
+    button.className = "answer-btn";
+    button.innerText = option.text;
+    button.onclick = () => showStep(option.nextStep);
+    container.appendChild(button);
+  });
+}
+
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+</script>
+
+</body>
+</html>
